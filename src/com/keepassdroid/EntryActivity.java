@@ -44,6 +44,7 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,6 +61,7 @@ import com.keepassdroid.compat.ActivityCompat;
 import com.keepassdroid.database.PwEntry;
 import com.keepassdroid.database.PwEntryV4;
 import com.keepassdroid.database.exception.SamsungClipboardException;
+import com.keepassdroid.hid.Keyboard;
 import com.keepassdroid.intents.Intents;
 import com.keepassdroid.utils.EmptyUtils;
 import com.keepassdroid.utils.Types;
@@ -71,6 +73,8 @@ public class EntryActivity extends LockCloseActivity {
 
 	public static final int NOTIFY_USERNAME = 1;
 	public static final int NOTIFY_PASSWORD = 2;
+    public static final int NOTIFY_USERNAME_HOST = 3;
+    public static final int NOTIFY_PASSWORD_HOST = 4;
 	
 	public static void Launch(Activity act, PwEntry pw, int pos) {
 		Intent i;
@@ -162,12 +166,18 @@ public class EntryActivity extends LockCloseActivity {
 			// only show notification if password is available
 			Notification password = getNotification(Intents.COPY_PASSWORD, R.string.copy_password);
 			mNM.notify(NOTIFY_PASSWORD, password);
+
+            Notification pwToHost = getNotification(Intents.SEND_PASSWORD_HOST, R.string.send_password_host);
+            mNM.notify(NOTIFY_PASSWORD_HOST, pwToHost);
 		}
 		
 		if ( mEntry.getUsername().length() > 0 ) {
 			// only show notification if username is available
 			Notification username = getNotification(Intents.COPY_USERNAME, R.string.copy_username);
 			mNM.notify(NOTIFY_USERNAME, username);
+
+            Notification userToHost = getNotification(Intents.SEND_USERNAME_HOST, R.string.send_username_host);
+            mNM.notify(NOTIFY_USERNAME_HOST, userToHost);
 		}
 			
 		mIntentReceiver = new BroadcastReceiver() {
@@ -176,23 +186,38 @@ public class EntryActivity extends LockCloseActivity {
 			public void onReceive(Context context, Intent intent) {
 				String action = intent.getAction();
 
-				if ( action.equals(Intents.COPY_USERNAME) ) {
-					String username = mEntry.getUsername();
-					if ( username.length() > 0 ) {
-						timeoutCopyToClipboard(username);
-					}
-				} else if ( action.equals(Intents.COPY_PASSWORD) ) {
-					String password = new String(mEntry.getPassword());
-					if ( password.length() > 0 ) {
-						timeoutCopyToClipboard(new String(mEntry.getPassword()));
-					}
-				}
+                if (action.equals(Intents.COPY_USERNAME)) {
+                    String username = mEntry.getUsername();
+                    if (username.length() > 0) {
+                        timeoutCopyToClipboard(username);
+                    }
+                } else if (action.equals(Intents.COPY_PASSWORD)) {
+                    String password = new String(mEntry.getPassword());
+                    if (password.length() > 0) {
+                        timeoutCopyToClipboard(new String(mEntry.getPassword()));
+                    }
+                } else if (action.equals(Intents.SEND_PASSWORD_HOST)) {
+                    String password = new String(mEntry.getPassword());
+                    Log.d(this.getClass().getSimpleName(), "SEND PASSWORD TO HOST EVENT");
+                    if (password.length() > 0) {
+                        Keyboard.buildAndExecuteKeyboardActionsFromString(password);
+                    }
+
+                } else if (action.equals(Intents.SEND_USERNAME_HOST)) {
+                    String username = mEntry.getUsername();
+                    Log.d(this.getClass().getSimpleName(), "SEND USERNAME TO HOST EVENT");
+                    if (username.length() > 0) {
+                        Keyboard.buildAndExecuteKeyboardActionsFromString(username);
+                    }
+                }
 			}
 		};
 		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Intents.COPY_USERNAME);
 		filter.addAction(Intents.COPY_PASSWORD);
+        filter.addAction(Intents.SEND_PASSWORD_HOST);
+        filter.addAction(Intents.SEND_USERNAME_HOST);
 		registerReceiver(mIntentReceiver, filter);
 	}
 	
