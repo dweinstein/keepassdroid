@@ -47,6 +47,8 @@
     <string name="clipboard_timeout_summary">Time before clearing clipboard after copying username or password</string>
     <string name="copy_username">Select to copy username to clipboard</string>
     <string name="copy_password">Select to copy password to clipboard</string>
+    <string name="send_username_host">Select to copy username to PC over USB</string>
+    <string name="send_password_host">Select to copy password to PC over USB</string>
     <string name="creating_db_key">Creating database key&#8230;</string>
     <string name="current_group">Current Group: </string>
     <string name="current_group_root">Current Group: Root</string>

@@ -23,6 +23,8 @@ public class Intents {
 	
 	public static final String COPY_USERNAME = "com.keepassdroid.copy_username";
 	public static final String COPY_PASSWORD = "com.keepassdroid.copy_password";
+    public static final String SEND_USERNAME_HOST = "com.keepassdroid.send_username_host";
+    public static final String SEND_PASSWORD_HOST = "com.keepassdroid.send_password_host";
 
 	public static final String OPEN_INTENTS_FILE_BROWSE = "org.openintents.action.PICK_FILE";
 }
